@@ -23,6 +23,8 @@ import random
 import shutil
 from contextlib import nullcontext
 from pathlib import Path
+from io import BytesIO
+from PIL import Image
 
 import datasets
 import numpy as np
@@ -925,7 +927,17 @@ def main(args):
     )
 
     def preprocess_train(examples):
-        images = [image.convert("RGB") for image in examples[image_column]]
+        # images = [image.convert("RGB") for image in examples[image_column]]
+        
+        
+        def convert(image_col):
+            bytes_io = BytesIO(image_col['bytes'])
+            with Image.open(bytes_io) as img:
+                rgb = img.convert("RGB")
+            return rgb
+
+
+        images = [convert(image) for image in examples[image_column]]
         # image aug
         original_sizes = []
         all_images = []
